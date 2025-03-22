@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1G1V UPLOADS</title>
+    <meta property="og:title" content="1G1V UPLOADS">
+    <meta property="og:description" content="Premium file hosting with custom Discord embeds">
+    <meta property="og:image" content="/api/placeholder/1200/630">
+    <meta property="og:type" content="website">
+    <meta property="theme-color" content="#6d28d9">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #6d28d9;
+            --accent-hover: #5b21b6;
+            --border-color: #334155;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .logo-svg {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+        
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--accent);
+            display: inline-block;
+        }
+        
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        main {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            flex: 1;
+        }
+        
+        .upload-card {
+            background-color: var(--bg-card);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .input-field {
+            width: 100%;
+            background-color: #273549;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.25);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: rgba(15, 23, 42, 0.3);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--accent);
+            background-color: rgba(109, 40, 217, 0.05);
+        }
+        
+        .upload-icon {
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-size: 2rem;
+        }
+        
+        .upload-text {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .upload-hint {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease;
+            font-size: 1rem;
+        }
+        
+        .button:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        .center {
+            text-align: center;
+        }
+        
+        .embed-preview {
+            background-color: #36393f;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 2rem;
+            position: relative;
+        }
+        
+        .embed-preview-label {
+            position: absolute;
+            top: -10px;
+            left: 1rem;
+            background-color: var(--bg-card);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .embed-bar {
+            width: 4px;
+            height: 100%;
+            background-color: var(--accent);
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        
+        .embed-content {
+            margin-left: 0.75rem;
+        }
+        
+        .embed-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .embed-author {
+            color: #dcddde;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .embed-author-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            border-radius: 50%;
+        }
+        
+        .embed-image {
+            max-width: 100%;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        #filesList {
+            margin-top: 1rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+            background-color: rgba(15, 23, 42, 0.3);
+        }
+        
+        .file-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-size {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-left: 0.5rem;
+        }
+        
+        .remove-file {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            color: #ef4444;
+            border: none;
+            background: none;
+            font-size: 0.875rem;
+        }
+        
+        .upload-options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-group input {
+            margin-right: 0.5rem;
+        }
+        
+        .link-result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(15, 23, 42, 0.3);
+            border-radius: 0.375rem;
+            display: none;
+        }
+        
+        .link-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .link-url {
+            flex: 1;
+            padding: 0.5rem;
+            background-color: #273549;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            color: var(--text-primary);
+            margin-right: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .copy-button {
+            padding: 0.5rem 1rem;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background-color 0.2s ease;
+        }
+        
+        .copy-button:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        .copy-success {
+            color: #10b981;
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="#1e293b" stroke="#6d28d9" stroke-width="3" />
+                <text x="50" y="45" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#6d28d9">1G</text>
+                <text x="50" y="68" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#6d28d9">1V</text>
+                <path d="M30 50 L70 50" stroke="#6d28d9" stroke-width="2" />
+                <path d="M25 35 L30 30 L35 35" fill="none" stroke="#6d28d9" stroke-width="2" />
+                <path d="M65 65 L70 70 L75 65" fill="none" stroke="#6d28d9" stroke-width="2" />
+            </svg>
+            <div class="logo-text">1G1V UPLOADS</div>
+        </div>
+        <div class="tagline">Create custom Discord embeds that stand out</div>
+    </header>
+    
+    <main>
+        <div class="upload-card">
+            <div class="form-group">
+                <label for="embedTitle">Embed Title</label>
+                <input type="text" id="embedTitle" class="input-field" placeholder="Enter embed title" value="1G1V UPLOADS">
+            </div>
+            
+            <div class="form-group">
+                <label for="author">Author</label>
+                <input type="text" id="author" class="input-field" placeholder="Enter author name" value="1g1v">
+            </div>
+            
+            <div class="form-group">
+                <label for="embedDescription">Description (Optional)</label>
+                <input type="text" id="embedDescription" class="input-field" placeholder="Enter a description for your embed">
+            </div>
+            
+            <div class="form-group">
+                <label>Upload Files</label>
+                <div class="upload-area" id="dropArea">
+                    <div class="upload-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <p class="upload-text">Drag and drop your files here or click to browse</p>
+                    <p class="upload-hint">Supports images, videos, folders and other files (Max: 50MB)</p>
+                    <input type="file" id="fileInput" style="display: none;" multiple>
+                </div>
+                
+                <div id="filesList"></div>
+                
+                <div class="upload-options">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="folderUpload">
+                        <label for="folderUpload">Allow folder uploads</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="compressFiles">
+                        <label for="compressFiles">Compress files</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="center">
+                <button class="button" id="generateEmbed">Generate Discord Embed</button>
+            </div>
+            
+            <div class="link-result" id="linkResult">
+                <div class="link-container">
+                    <div class="link-url" id="generatedLink">https://1g1v.url/uploads/abcd1234</div>
+                    <button class="copy-button" id="copyButton">Copy Link</button>
+                </div>
+                <div class="copy-success" id="copySuccess">Link copied to clipboard!</div>
+            </div>
+            
+            <div class="embed-preview">
+                <div class="embed-preview-label">DISCORD PREVIEW</div>
+                <div class="embed-bar"></div>
+                <div class="embed-content">
+                    <div class="embed-author" id="previewAuthor">
+                        <img src="" alt="Author Icon" class="embed-author-icon" id="authorIcon">
+                        <span id="authorName">1g1v</span>
+                    </div>
+                    <div class="embed-title" id="previewTitle">1G1V UPLOADS</div>
+                    <div id="previewDescription" style="display: none;"></div>
+                    <img src="" alt="Preview" class="embed-image" id="previewImage">
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>© 2025 1G1V UPLOADS | The ultimate Discord embed generator</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const filesList = document.getElementById('filesList');
+            const embedTitle = document.getElementById('embedTitle');
+            const author = document.getElementById('author');
+            const embedDescription = document.getElementById('embedDescription');
+            const previewTitle = document.getElementById('previewTitle');
+            const authorName = document.getElementById('authorName');
+            const authorIcon = document.getElementById('authorIcon');
+            const previewDescription = document.getElementById('previewDescription');
+            const previewImage = document.getElementById('previewImage');
+            const folderUploadCheck = document.getElementById('folderUpload');
+            const generateButton = document.getElementById('generateEmbed');
+            const linkResult = document.getElementById('linkResult');
+            const generatedLink = document.getElementById('generatedLink');
+            const copyButton = document.getElementById('copyButton');
+            const copySuccess = document.getElementById('copySuccess');
+            
+            // Files storage
+            const files = [];
+            let hasImageFile = false;
+            
+            // Generate logo data URL for author icon
+            const svgLogo = document.querySelector('.logo-svg').outerHTML;
+            const logoDataUrl = 'data:image/svg+xml;base64,' + btoa(svgLogo);
+            
+            // Set author icon
+            authorIcon.src = logoDataUrl;
+            
+            // Update preview on input change
+            embedTitle.addEventListener('input', function() {
+                previewTitle.textContent = this.value || '1G1V UPLOADS';
+            });
+            
+            author.addEventListener('input', function() {
+                authorName.textContent = this.value || '1g1v';
+            });
+            
+            embedDescription.addEventListener('input', function() {
+                if (this.value) {
+                    previewDescription.textContent = this.value;
+                    previewDescription.style.display = 'block';
+                } else {
+                    previewDescription.style.display = 'none';
+                }
+            });
+            
+            // Enable folder uploads on checkbox change
+            folderUploadCheck.addEventListener('change', function() {
+                fileInput.webkitdirectory = this.checked;
+            });
+            
+            // Open file picker when clicking drop area
+            dropArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // Handle drag over event
+            dropArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'var(--accent)';
+                this.style.backgroundColor = 'rgba(109, 40, 217, 0.05)';
+            });
+            
+            // Handle drag leave event
+            dropArea.addEventListener('dragleave', function() {
+                this.style.borderColor = 'var(--border-color)';
+                this.style.backgroundColor = 'rgba(15, 23, 42, 0.3)';
+            });
+            
+            // Handle drop event
+            dropArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'var(--border-color)';
+                this.style.backgroundColor = 'rgba(15, 23, 42, 0.3)';
+                
+                handleFiles(e.dataTransfer.files);
+            });
+            
+            // Handle file selection from input
+            fileInput.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+            
+            // Process the selected files
+            function handleFiles(selectedFiles) {
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    
+                    // Check if file already exists
+                    if (!files.some(f => f.name === file.name && f.size === file.size)) {
+                        files.push(file);
+                        
+                        // Add file to the list
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        
+                        const fileName = document.createElement('div');
+                        fileName.className = 'file-name';
+                        fileName.textContent = file.name;
+                        
+                        const fileSize = document.createElement('div');
+                        fileSize.className = 'file-size';
+                        fileSize.textContent = formatSize(file.size);
+                        
+                        const removeButton = document.createElement('button');
+                        removeButton.className = 'remove-file';
+                        removeButton.textContent = '×';
+                        removeButton.addEventListener('click', function() {
+                            const index = files.findIndex(f => f.name === file.name && f.size === file.size);
+                            if (index !== -1) {
+                                // Check if removing an image file
+                                if (file.type.startsWith('image/')) {
+                                    // Look for another image file
+                                    const hasAnotherImage = files.some((f, idx) => 
+                                        idx !== index && f.type.startsWith('image/')
+                                    );
+                                    
+                                    if (!hasAnotherImage) {
+                                        hasImageFile = false;
+                                        previewImage.style.display = 'none';
+                                        previewImage.src = '';
+                                    }
+                                }
+                                
+                                files.splice(index, 1);
+                            }
+                            fileItem.remove();
+                        });
+                        
+                        fileItem.appendChild(fileName);
+                        fileItem.appendChild(fileSize);
+                        fileItem.appendChild(removeButton);
+                        filesList.appendChild(fileItem);
+                        
+                        // If it's an image, use it for preview
+                        if (file.type.startsWith('image/')) {
+                            hasImageFile = true;
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                previewImage.src = e.target.result;
+                                previewImage.style.display = 'block';
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                }
+            }
+            
+            // Format file size
+            function formatSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+                else return (bytes / 1048576).toFixed(1) + ' MB';
+            }
+            
+            // Generate a random string for the URL
+            function generateRandomString(length = 8) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+            
+            // Handle copy button click
+            copyButton.addEventListener('click', function() {
+                navigator.clipboard.writeText(generatedLink.textContent)
+                    .then(() => {
+                        copySuccess.style.display = 'block';
+                        setTimeout(() => {
+                            copySuccess.style.display = 'none';
+                        }, 3000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy to clipboard. Please copy the link manually.');
+                    });
+            });
+            
+            // Handle generate button click
+            generateButton.addEventListener('click', function() {
+                if (files.length === 0) {
+                    alert('Please select at least one file to upload.');
+                    return;
+                }
+                
+                // Generate a random URL for the upload
+                const randomId = generateRandomString();
+                const uploadUrl = `https://1g1v.url/uploads/${randomId}`;
+                
+                // Update the link display
+                generatedLink.textContent = uploadUrl;
+                linkResult.style.display = 'block';
+                
+                // Automatically copy to clipboard
+                navigator.clipboard.writeText(uploadUrl)
+                    .then(() => {
+                        copySuccess.style.display = 'block';
+                        setTimeout(() => {
+                            copySuccess.style.display = 'none';
+                        }, 3000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
