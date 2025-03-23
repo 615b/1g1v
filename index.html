@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleHost - File & Image Hosting</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SimpleHost</h1>
+            <p>Easy file & image hosting with GitHub</p>
+        </header>
+
+        <main>
+            <div class="upload-container">
+                <div class="drop-area" id="dropArea">
+                    <p>Drag & drop files here or</p>
+                    <input type="file" id="fileInput" multiple>
+                    <label for="fileInput" class="upload-btn">Choose Files</label>
+                </div>
+                
+                <div class="upload-list">
+                    <h2>Upload Queue</h2>
+                    <ul id="uploadList"></ul>
+                    <button id="uploadButton" class="primary-btn" disabled>Upload All</button>
+                </div>
+            </div>
+
+            <div class="gallery-container">
+                <h2>Your Uploads</h2>
+                <div class="filter-options">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="image">Images</button>
+                    <button class="filter-btn" data-filter="document">Documents</button>
+                    <button class="filter-btn" data-filter="other">Other</button>
+                </div>
+                <div class="gallery" id="gallery"></div>
+            </div>
+        </main>
+
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <h2>GitHub Authentication</h2>
+                <p>To upload files, you need to authenticate with GitHub:</p>
+                <div class="input-group">
+                    <label for="repoOwner">Repository Owner:</label>
+                    <input type="text" id="repoOwner" placeholder="Your GitHub username">
+                </div>
+                <div class="input-group">
+                    <label for="repoName">Repository Name:</label>
+                    <input type="text" id="repoName" placeholder="your-repo-name">
+                </div>
+                <div class="input-group">
+                    <label for="token">Personal Access Token:</label>
+                    <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxx">
+                    <p class="help-text">Create a token with 'repo' scope at <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings</a></p>
+                </div>
+                <button id="saveAuth" class="primary-btn">Save</button>
+                <button id="closeModal" class="secondary-btn">Cancel</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>SimpleHost &copy; 2025 - Hosted with <a href="https://pages.github.com/" target="_blank">GitHub Pages</a></p>
+            <button id="settingsBtn" class="icon-btn">⚙️</button>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
