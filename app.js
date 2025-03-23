@@ -10,9 +10,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const gallery = document.getElementById('gallery');
     const toast = document.getElementById('toast');
     
+    // Base URL for the application
+    const BASE_URL = 'https://615b.github.io/1g1v/';
+    
     // File Queue
     let fileQueue = [];
     let uploadedFiles = [];
+    
+    // Check if we're on a sharing page by looking for a file parameter in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedFileId = urlParams.get('file');
+    
+    if (sharedFileId) {
+        loadSharedFile(sharedFileId);
+    }
     
     // Event Listeners
     dropArea.addEventListener('dragover', (e) => {
@@ -101,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fileQueue.length === 0) return;
         
         uploadButton.disabled = true;
-        let filesUploaded = 0;
         
         // Simulate progress
         let progress = 0;
@@ -122,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const fileId = generateFileId();
                         
                         // Store the file in localStorage (for demo purposes)
-                        storeFileMetadata(fileId, file, fileUrl);
+                        storeFileData(fileId, file, fileUrl);
                         
                         // Add to uploaded files array
                         uploadedFiles.push({
@@ -148,21 +158,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
     
-    function storeFileMetadata(fileId, file, fileUrl) {
+    function storeFileData(fileId, file, fileUrl) {
         // Get existing files from localStorage or initialize empty object
         const storedFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '{}');
         
-        // Add new file metadata
-        storedFiles[fileId] = {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            url: fileUrl,
-            dateUploaded: new Date().toISOString()
+        // Create a blob from the file to store its content
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Store file metadata and base64 content
+            storedFiles[fileId] = {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                content: e.target.result, // Base64 encoded file content
+                dateUploaded: new Date().toISOString(),
+                expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days expiry
+            };
+            
+            // Save back to localStorage
+            localStorage.setItem('uploadedFiles', JSON.stringify(storedFiles));
         };
         
-        // Save back to localStorage
-        localStorage.setItem('uploadedFiles', JSON.stringify(storedFiles));
+        // Read the file as data URL (base64)
+        reader.readAsDataURL(file);
     }
     
     function addFileToGallery(file, fileUrl, fileId) {
@@ -225,36 +243,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const shareLink = document.getElementById('shareLink');
         const copyLinkBtn = document.getElementById('copyLink');
         const closeShareModalBtn = document.getElementById('closeShareModal');
-        const emailShareBtn = document.getElementById('emailShare');
-        const socialShareButtons = document.getElementById('socialShareButtons');
         
-        // Generate a shareable link using the file ID
-        const shareableLink = generateShareableLink(fileId);
+        // Generate an actual working share link using the base URL + query parameter
+        const shareableLink = `${BASE_URL}?file=${fileId}`;
         shareLink.value = shareableLink;
         
-        // Update the email sharing link
-        if (emailShareBtn) {
-            emailShareBtn.href = `mailto:?subject=Shared file: ${fileName}&body=I wanted to share this file with you: ${shareableLink}`;
-        }
-        
-        // Update social media sharing links if they exist
-        if (socialShareButtons) {
-            const twitterBtn = socialShareButtons.querySelector('.twitter-share');
-            const facebookBtn = socialShareButtons.querySelector('.facebook-share');
-            const linkedinBtn = socialShareButtons.querySelector('.linkedin-share');
-            
-            if (twitterBtn) {
-                twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareableLink)}&text=${encodeURIComponent(`Check out this file: ${fileName}`)}`;
-            }
-            
-            if (facebookBtn) {
-                facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareableLink)}`;
-            }
-            
-            if (linkedinBtn) {
-                linkedinBtn.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareableLink)}`;
-            }
-        }
+        // Update share button URLs if they exist
+        updateSocialShareButtons(shareableLink, fileName);
         
         shareModal.classList.add('visible');
         
@@ -270,63 +265,72 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function generateShareableLink(fileId) {
-        // Create a URL using the current domain and the file ID
-        const shareUrl = new URL(`${window.location.origin}/share/${fileId}`);
+    function updateSocialShareButtons(shareableLink, fileName) {
+        // Check if the email share button exists
+        const emailShareBtn = document.getElementById('emailShare');
+        if (emailShareBtn) {
+            emailShareBtn.href = `mailto:?subject=Shared file: ${fileName}&body=I wanted to share this file with you: ${shareableLink}`;
+        }
         
-        // Add an expiration date (7 days from now)
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 7);
-        shareUrl.searchParams.append('expires', expiryDate.toISOString());
+        // Check if social sharing buttons exist
+        const twitterBtn = document.querySelector('.twitter-share');
+        const facebookBtn = document.querySelector('.facebook-share');
+        const linkedinBtn = document.querySelector('.linkedin-share');
         
-        return shareUrl.toString();
+        if (twitterBtn) {
+            twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareableLink)}&text=${encodeURIComponent(`Check out this file: ${fileName}`)}`;
+        }
+        
+        if (facebookBtn) {
+            facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareableLink)}`;
+        }
+        
+        if (linkedinBtn) {
+            linkedinBtn.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareableLink)}`;
+        }
     }
     
-    // Add a function to handle shared links
-    function handleSharedLink() {
-        // Check if we're on a share URL
-        const urlPath = window.location.pathname;
-        if (urlPath.startsWith('/share/')) {
-            const fileId = urlPath.split('/share/')[1];
-            
-            // Check if file exists in localStorage (for demo purposes)
-            const storedFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '{}');
-            const fileMetadata = storedFiles[fileId];
-            
-            if (fileMetadata) {
-                // Check if link has expired
-                const urlParams = new URLSearchParams(window.location.search);
-                const expiryDateStr = urlParams.get('expires');
-                
-                if (expiryDateStr) {
-                    const expiryDate = new Date(expiryDateStr);
-                    const now = new Date();
-                    
-                    if (now > expiryDate) {
-                        // Link expired
-                        showToast('error', 'This sharing link has expired.');
-                        return;
-                    }
-                }
-                
-                // Show the shared file
-                showToast('success', `Viewing shared file: ${fileMetadata.name}`);
-                
-                // Create a file object and URL from the metadata
-                const file = {
-                    name: fileMetadata.name,
-                    type: fileMetadata.type,
-                    size: fileMetadata.size
-                };
-                
-                const fileUrl = fileMetadata.url;
-                
-                // Open the viewer modal
-                openViewerModal(file, fileUrl, fileId);
-            } else {
-                showToast('error', 'Shared file not found or has been removed.');
-            }
+    function loadSharedFile(fileId) {
+        // Get stored files from localStorage
+        const storedFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '{}');
+        const fileData = storedFiles[fileId];
+        
+        if (!fileData) {
+            showToast('error', 'Shared file not found or has been removed.');
+            return;
         }
+        
+        // Check if the file has expired
+        const expiryDate = new Date(fileData.expires);
+        if (expiryDate < new Date()) {
+            showToast('error', 'This sharing link has expired.');
+            return;
+        }
+        
+        // Create a file object from the stored data
+        const blob = dataURLtoBlob(fileData.content);
+        const file = new File([blob], fileData.name, { type: fileData.type });
+        const fileUrl = URL.createObjectURL(file);
+        
+        // Open the viewer modal with the shared file
+        openViewerModal(file, fileUrl, fileId);
+        
+        showToast('success', `Viewing shared file: ${fileData.name}`);
+    }
+    
+    // Convert data URL to Blob
+    function dataURLtoBlob(dataURL) {
+        const parts = dataURL.split(';base64,');
+        const contentType = parts[0].split(':')[1];
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+        
+        for (let i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+        
+        return new Blob([uInt8Array], { type: contentType });
     }
     
     function openViewerModal(file, fileUrl, fileId) {
@@ -336,9 +340,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const viewerFilesize = document.getElementById('viewerFilesize');
         const viewerFiletype = document.getElementById('viewerFiletype');
         const viewerFiledate = document.getElementById('viewerFiledate');
-        const downloadFile = document.getElementById('downloadFile');
-        const shareFile = document.getElementById('shareFile');
-        const closeViewer = document.getElementById('closeViewer');
+        const downloadFileBtn = document.getElementById('downloadFile');
+        const shareFileBtn = document.getElementById('shareFile');
+        const closeViewerBtn = document.getElementById('closeViewer');
         
         viewerFilename.textContent = file.name;
         viewerFilesize.textContent = formatFileSize(file.size);
@@ -374,21 +378,16 @@ document.addEventListener('DOMContentLoaded', function() {
         viewerModal.classList.add('visible');
         
         // Add event listeners
-        downloadFile.addEventListener('click', () => {
-            const a = document.createElement('a');
-            a.href = fileUrl;
-            a.download = file.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+        downloadFileBtn.addEventListener('click', () => {
+            downloadFile(fileUrl, file.name);
         });
         
-        shareFile.addEventListener('click', () => {
+        shareFileBtn.addEventListener('click', () => {
             viewerModal.classList.remove('visible');
             openShareModal(fileId, file.name);
         });
         
-        closeViewer.addEventListener('click', () => {
+        closeViewerBtn.addEventListener('click', () => {
             viewerModal.classList.remove('visible');
         });
     }
@@ -454,10 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
     
-    // Check for shared links when page loads
-    handleSharedLink();
-    
-    // Optional: Add social sharing HTML elements if they don't exist
+    // Create social sharing elements if they don't exist
     function createSocialSharingElements() {
         const shareModal = document.getElementById('shareModal');
         if (!shareModal) return;
