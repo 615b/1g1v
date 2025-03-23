@@ -3,72 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimpleHost - File & Image Hosting</title>
+    <title>FileVault - Secure File Storage</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a6fd8'%3E%3Cpath d='M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z'/%3E%3C/svg%3E">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>SimpleHost</h1>
-            <p>Easy file & image hosting with GitHub</p>
+            <div class="logo">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h1>FileVault</h1>
+            </div>
+            <p>Secure, simple, seamless file storage</p>
         </header>
-
+        
         <main>
             <div class="upload-container">
                 <div class="drop-area" id="dropArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x"></i>
                     <p>Drag & drop files here or</p>
                     <input type="file" id="fileInput" multiple>
-                    <label for="fileInput" class="upload-btn">Choose Files</label>
+                    <label for="fileInput" class="upload-btn"><i class="fas fa-file-upload"></i> Select Files</label>
+                </div>
+                
+                <div class="upload-status">
+                    <div class="progress-container">
+                        <div class="progress-bar" id="uploadProgress"></div>
+                    </div>
+                    <p id="statusText">Ready to upload</p>
                 </div>
                 
                 <div class="upload-list">
-                    <h2>Upload Queue</h2>
+                    <div class="list-header">
+                        <h2>Files Queue</h2>
+                        <button id="clearAll" class="icon-btn"><i class="fas fa-trash-alt"></i> Clear All</button>
+                    </div>
                     <ul id="uploadList"></ul>
-                    <button id="uploadButton" class="primary-btn" disabled>Upload All</button>
+                    <button id="uploadButton" class="primary-btn" disabled><i class="fas fa-upload"></i> Upload All</button>
                 </div>
             </div>
-
+            
             <div class="gallery-container">
-                <h2>Your Uploads</h2>
-                <div class="filter-options">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="image">Images</button>
-                    <button class="filter-btn" data-filter="document">Documents</button>
-                    <button class="filter-btn" data-filter="other">Other</button>
+                <div class="gallery-header">
+                    <h2>Your Files</h2>
+                    <div class="gallery-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchFiles" placeholder="Search files...">
+                        </div>
+                        <select id="sortFiles" class="sort-select">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="name">Name</option>
+                            <option value="size">Size</option>
+                        </select>
+                    </div>
                 </div>
+                
+                <div class="filter-options">
+                    <button class="filter-btn active" data-filter="all">All Files</button>
+                    <button class="filter-btn" data-filter="image"><i class="far fa-image"></i> Images</button>
+                    <button class="filter-btn" data-filter="document"><i class="far fa-file-alt"></i> Documents</button>
+                    <button class="filter-btn" data-filter="audio"><i class="far fa-file-audio"></i> Audio</button>
+                    <button class="filter-btn" data-filter="video"><i class="far fa-file-video"></i> Video</button>
+                    <button class="filter-btn" data-filter="other"><i class="far fa-file"></i> Other</button>
+                </div>
+                
                 <div class="gallery" id="gallery"></div>
+                
+                <div class="pagination">
+                    <button id="prevPage" class="pagination-btn"><i class="fas fa-chevron-left"></i></button>
+                    <span id="pageInfo">Page 1 of 1</span>
+                    <button id="nextPage" class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
             </div>
         </main>
-
-        <div id="authModal" class="modal">
-            <div class="modal-content">
-                <h2>GitHub Authentication</h2>
-                <p>To upload files, you need to authenticate with GitHub:</p>
-                <div class="input-group">
-                    <label for="repoOwner">Repository Owner:</label>
-                    <input type="text" id="repoOwner" placeholder="Your GitHub username">
+        
+        <div id="viewerModal" class="modal">
+            <div class="modal-content viewer-content">
+                <button class="modal-close" id="closeViewer"><i class="fas fa-times"></i></button>
+                <div id="fileViewer"></div>
+                <div class="viewer-info">
+                    <h3 id="viewerFilename">filename.jpg</h3>
+                    <div class="file-meta">
+                        <span id="viewerFilesize">2.3 MB</span>
+                        <span id="viewerFiletype">Image/JPEG</span>
+                        <span id="viewerFiledate">March 23, 2025</span>
+                    </div>
+                    <div class="viewer-actions">
+                        <button id="downloadFile" class="secondary-btn"><i class="fas fa-download"></i> Download</button>
+                        <button id="shareFile" class="primary-btn"><i class="fas fa-share-alt"></i> Share</button>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="repoName">Repository Name:</label>
-                    <input type="text" id="repoName" placeholder="your-repo-name">
-                </div>
-                <div class="input-group">
-                    <label for="token">Personal Access Token:</label>
-                    <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxx">
-                    <p class="help-text">Create a token with 'repo' scope at <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings</a></p>
-                </div>
-                <button id="saveAuth" class="primary-btn">Save</button>
-                <button id="closeModal" class="secondary-btn">Cancel</button>
             </div>
         </div>
-
+        
+        <div id="shareModal" class="modal">
+            <div class="modal-content">
+                <h2>Share File</h2>
+                <p>Copy the link below to share your file:</p>
+                <div class="copy-link">
+                    <input type="text" id="shareLink" readonly>
+                    <button id="copyLink" class="icon-btn"><i class="fas fa-copy"></i></button>
+                </div>
+                <div class="share-options">
+                    <button class="share-btn"><i class="fab fa-facebook"></i></button>
+                    <button class="share-btn"><i class="fab fa-twitter"></i></button>
+                    <button class="share-btn"><i class="fab fa-linkedin"></i></button>
+                    <button class="share-btn"><i class="fab fa-whatsapp"></i></button>
+                </div>
+                <button id="closeShareModal" class="secondary-btn">Close</button>
+            </div>
+        </div>
+        
         <footer>
-            <p>SimpleHost &copy; 2025 - Hosted with <a href="https://pages.github.com/" target="_blank">GitHub Pages</a></p>
-            <button id="settingsBtn" class="icon-btn">⚙️</button>
+            <div class="footer-content">
+                <p>&copy; 2025 FileVault - Your files remain private and secure</p>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-shield-alt"></i> Privacy</a>
+                    <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+                    <a href="#" id="settingsBtn"><i class="fas fa-cog"></i> Settings</a>
+                </div>
+            </div>
         </footer>
     </div>
-
+    
+    <div id="toast" class="toast hidden">
+        <div class="toast-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="toast-message">File uploaded successfully!</div>
+    </div>
+    
     <script src="app.js"></script>
 </body>
 </html>
